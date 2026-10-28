@@ -13,7 +13,7 @@ export const SAMPLES: Sample[] = [
   {
     id: "trend",
     title: "区域月销售额",
-    description: "六个区域、半年的销售额。适合看走势，也适合在图例里关掉某一条线。",
+    description: "三个区域、半年的销售额。适合看走势，也适合在图例里关掉某一条线。",
     intentText: "看各区域销售额趋势",
     expectedMark: "line",
     text: `月份,区域,销售额
