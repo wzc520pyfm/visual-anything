@@ -31,9 +31,7 @@ npm test
 
 ## 给 Agent 用
 
-选图编译器是独立包 [`visual-anything`](packages/viz)。安装后调用 `buildVisualization`。规则在 [`skills/universal-visualization/SKILL.md`](skills/universal-visualization/SKILL.md)。公开样例在 [`packages/viz/fixtures/cases.json`](packages/viz/fixtures/cases.json)。
-
-这个仓库的网页应用保持私有。准备把编译器发到 npm 时，在 `packages/viz` 里执行 `npm publish`。发布前 `prepack` 会编译 `dist`。
+选图编译器已发布为 [`visual-anything`](https://www.npmjs.com/package/visual-anything)，源码在 [`packages/viz`](packages/viz)。安装后调用 `buildVisualization`。规则在 [`skills/universal-visualization/SKILL.md`](skills/universal-visualization/SKILL.md)。公开样例在 [`packages/viz/fixtures/cases.json`](packages/viz/fixtures/cases.json)。
 
 ## 部署
 
