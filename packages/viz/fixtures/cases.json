@@ -1,0 +1,206 @@
+[
+  {
+    "id": "time-change",
+    "note": "时间加一个数值，保留调用方标题，结论写首尾变化。",
+    "text": "月份,销售额\n2024-01-01,10\n2024-02-01,25\n2024-03-01,40\n",
+    "title": "月度销售额",
+    "expect": {
+      "ok": true,
+      "mark": "line",
+      "encodings": { "x": "月份", "y": "销售额" },
+      "title": "月度销售额",
+      "finding": "销售额从 10 变为 40，变化 30。",
+      "issues": []
+    }
+  },
+  {
+    "id": "multi-series-line",
+    "note": "多条线只说明各组在变化，不把它们收成一个首尾差。",
+    "text": "月份,区域,销售额\n2024-01-01,华东,10\n2024-01-01,华北,8\n2024-02-01,华东,12\n2024-02-01,华北,9\n",
+    "expect": {
+      "ok": true,
+      "mark": "line",
+      "encodings": { "x": "月份", "y": "销售额", "color": "区域" },
+      "finding": "各组销售额随时间变化，共 4 行。",
+      "issues": []
+    }
+  },
+  {
+    "id": "category-bar",
+    "note": "一个类别加一个数值，从零比较，结论点出最大项。",
+    "text": "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    "expect": {
+      "ok": true,
+      "mark": "bar",
+      "encodings": { "x": "品类", "y": "销售额" },
+      "title": "「咖啡」的销售额最高，为 120",
+      "finding": "「咖啡」的销售额最高，为 120。",
+      "issues": []
+    }
+  },
+  {
+    "id": "rank",
+    "note": "排名意图把短类别表改成从高到低的横条。",
+    "text": "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    "intentText": "看排名",
+    "expect": {
+      "ok": true,
+      "mark": "horizontal-bar",
+      "encodings": { "x": "品类", "y": "销售额" },
+      "finding": "「咖啡」的销售额最高，为 120。",
+      "issues": []
+    }
+  },
+  {
+    "id": "distribution-without-repeats",
+    "note": "每个类别只有一行时，分布意图不改变比较图。",
+    "text": "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    "intentText": "看分布",
+    "expect": {
+      "ok": true,
+      "mark": "bar",
+      "finding": "「咖啡」的销售额最高，为 120。",
+      "issues": ["distribution-needs-repeats"]
+    }
+  },
+  {
+    "id": "histogram",
+    "note": "只有一个数值时看分布，用直方图。",
+    "text": "耗时\n4\n9\n9\n15\n3\n",
+    "intentText": "看分布",
+    "expect": {
+      "ok": true,
+      "mark": "histogram",
+      "encodings": { "x": "耗时" },
+      "finding": "按耗时分箱计数，共 5 行。",
+      "issues": []
+    }
+  },
+  {
+    "id": "boxplot",
+    "note": "同一类别有多条数值且询问分布时，用箱线图。",
+    "text": "门店,耗时\n甲,4\n甲,9\n甲,6\n乙,3\n乙,8\n乙,5\n",
+    "intentText": "看分布",
+    "expect": {
+      "ok": true,
+      "mark": "boxplot",
+      "encodings": { "x": "门店", "y": "耗时" },
+      "finding": "按门店看耗时的分布，共 6 行。",
+      "issues": []
+    }
+  },
+  {
+    "id": "diverging-bar",
+    "note": "类别数值有正有负时，用发散条形图。",
+    "text": "品类,利润\n华东,10\n华北,-4\n华南,3\n",
+    "expect": {
+      "ok": true,
+      "mark": "diverging-bar",
+      "encodings": { "x": "品类", "y": "利润" },
+      "finding": "「华东」的利润最高，为 10。",
+      "issues": []
+    }
+  },
+  {
+    "id": "all-negative-bar",
+    "note": "全是负数时仍用普通柱，不画成发散条。",
+    "text": "品类,利润\n华东,-10\n华北,-4\n华南,-1\n",
+    "expect": {
+      "ok": true,
+      "mark": "bar",
+      "finding": "「华南」的利润最高，为 -1。",
+      "issues": []
+    }
+  },
+  {
+    "id": "scatter",
+    "note": "两个数值用散点，结论不写成因果。",
+    "text": "花费,成交\n10,30\n20,55\n15,40\n",
+    "expect": {
+      "ok": true,
+      "mark": "scatter",
+      "encodings": { "x": "花费", "y": "成交" },
+      "finding": "图上每个点是一行。只看花费和成交是否同向变化，不表示原因。",
+      "issues": []
+    }
+  },
+  {
+    "id": "mixed-units",
+    "note": "单位不同留在两根轴上，并记一条检查。",
+    "text": "花费(万元),成交(单)\n1.2,30\n2.4,55\n0.8,20\n",
+    "expect": {
+      "ok": true,
+      "mark": "scatter",
+      "issues": ["mixed-units"]
+    }
+  },
+  {
+    "id": "share",
+    "note": "构成问题、类别少且非负时才推荐饼图。",
+    "text": "渠道,订单量\n小程序,10\n门店,5\n外卖,3\n",
+    "intentText": "看占比",
+    "expect": {
+      "ok": true,
+      "mark": "pie",
+      "encodings": { "y": "订单量", "color": "渠道" },
+      "finding": "按渠道看订单量的构成，合计 18。",
+      "issues": []
+    }
+  },
+  {
+    "id": "heatmap",
+    "note": "两个紧凑类别加一个数值，用热力。",
+    "text": "时段,门店,客流\n上午,甲,1\n上午,乙,2\n下午,甲,3\n下午,乙,4\n",
+    "expect": {
+      "ok": true,
+      "mark": "heatmap",
+      "encodings": { "x": "时段", "y": "门店", "color": "客流" },
+      "finding": "颜色表示客流，共 4 行。",
+      "issues": []
+    }
+  },
+  {
+    "id": "unused-measure",
+    "note": "时间序列旁边的第二列数值不画到同一轴上。",
+    "text": "月份,销售额,成本\n2024-01-01,10,4\n2024-02-01,12,5\n",
+    "expect": {
+      "ok": true,
+      "mark": "line",
+      "encodings": { "x": "月份", "y": "销售额" },
+      "issues": ["unused-measures"]
+    }
+  },
+  {
+    "id": "no-causation",
+    "note": "问原因只加检查，不改图，也不把原因写进结论。",
+    "text": "月份,销售额\n2024-01-01,10\n2024-02-01,8\n",
+    "intentText": "为什么销售额下降",
+    "expect": {
+      "ok": true,
+      "mark": "line",
+      "finding": "销售额从 10 变为 8，变化 -2。",
+      "issues": ["no-causation"]
+    }
+  },
+  {
+    "id": "count",
+    "note": "没有数值列、一个类别有重复时，柱高是出现次数。",
+    "text": "品类\n咖啡\n咖啡\n咖啡\n茶饮\n茶饮\n",
+    "expect": {
+      "ok": true,
+      "mark": "bar",
+      "encodings": { "x": "品类", "y": "次数" },
+      "finding": "没有数值列。出现最多的是「咖啡」，3 次。",
+      "issues": ["count-chart"]
+    }
+  },
+  {
+    "id": "unique-labels",
+    "note": "没有数值列且类别不重复时，不画图。",
+    "text": "品类\n咖啡\n茶饮\n烘焙\n",
+    "expect": {
+      "ok": false,
+      "errorIncludes": "数值"
+    }
+  }
+]

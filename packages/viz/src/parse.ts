@@ -1,4 +1,4 @@
-import type { Row } from "./types";
+import type { Row } from "./types.js";
 
 export interface ParsedTable {
   rows: Row[];

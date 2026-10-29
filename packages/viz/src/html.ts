@@ -1,4 +1,4 @@
-import { G2_VERSION, type G2Spec, type Issue } from "./types";
+import { G2_VERSION, type G2Spec, type Issue } from "./types.js";
 
 export function renderHtml(input: {
   title: string;

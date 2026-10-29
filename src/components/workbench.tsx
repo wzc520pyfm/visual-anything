@@ -9,9 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { SAMPLES } from "@/lib/viz/samples";
-import { G2_VERSION, buildVisualization, type Mark } from "@/lib/viz/pipeline";
-import type { FieldProfile, Issue } from "@/lib/viz/types";
+import {
+  G2_VERSION,
+  SAMPLES,
+  buildVisualization,
+  type FieldProfile,
+  type Issue,
+  type Mark,
+} from "wanxiang-viz";
 
 const FIELD_LABEL: Record<FieldProfile["type"], string> = {
   quantitative: "数值",
