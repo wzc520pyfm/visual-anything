@@ -36,7 +36,7 @@ export function renderHtml(input: {
 </head>
 <body>
   <main>
-    <p class="kicker">万象 · ANTV G2 ${G2_VERSION}</p>
+    <p class="kicker">Visual Anything · ANTV G2 ${G2_VERSION}</p>
     <h1>${escapeHtml(input.title)}</h1>
     <p>${escapeHtml(input.summary)}</p>
     <p class="finding">${escapeHtml(input.finding)}</p>

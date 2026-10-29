@@ -578,7 +578,7 @@ describe("buildVisualization", () => {
 });
 
 test("cli writes a standalone html file", async () => {
-  const dir = mkdtempSync(path.join(tmpdir(), "wanxiang-"));
+  const dir = mkdtempSync(path.join(tmpdir(), "visual-anything-"));
   const input = path.join(dir, "in.csv");
   const output = path.join(dir, "out.html");
   writeFileSync(input, lineCsv);
@@ -607,7 +607,7 @@ test("the skill tells agents where not to send a statistical table", () => {
   expect(skill).toContain("boxplot");
   expect(skill).toContain("diverging bar");
   expect(skill).toContain("count-chart");
-  expect(skill).toContain("npm install wanxiang-viz");
+  expect(skill).toContain("npm install visual-anything");
   expect(skill).toContain("does not group, filter, or sum detail rows");
   expect(skill).toContain("Do not use this skill to hand-write Vega-Lite");
   expect(skill).toContain("Do not use this skill for matplotlib, seaborn, or Plotly");

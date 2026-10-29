@@ -17,7 +17,7 @@ const serif = Noto_Serif_SC({
 });
 
 export const metadata: Metadata = {
-  title: "万象 · AntV 可视化",
+  title: "Visual Anything · AntV 可视化",
   description: "把 CSV 或 JSON 表格变成可交互的 AntV G2 图表，并导出独立 HTML。",
 };
 

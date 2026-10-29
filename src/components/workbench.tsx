@@ -16,7 +16,7 @@ import {
   type FieldProfile,
   type Issue,
   type Mark,
-} from "wanxiang-viz";
+} from "visual-anything";
 
 const FIELD_LABEL: Record<FieldProfile["type"], string> = {
   quantitative: "数值",
@@ -99,7 +99,7 @@ export function Workbench() {
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-medium tracking-[0.18em] text-primary">ANTV G2 · V1</p>
-            <h1 className="mt-1 font-heading text-4xl tracking-tight">万象</h1>
+            <h1 className="mt-1 font-heading text-4xl tracking-tight">Visual Anything</h1>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               把表格整理成可交互图表。先看字段和时间，再决定柱状、折线、散点或热力，并标出不该下的结论。
             </p>
