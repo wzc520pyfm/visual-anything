@@ -63,6 +63,23 @@ describe("buildVisualization", () => {
     expect(result.rows.map((row) => row.品类)).toEqual(["茶饮", "咖啡", "烘焙"]);
   });
 
+  test("ranks a short category list as a horizontal bar sorted high to low", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+      intentText: "看排名",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("horizontal-bar");
+    expect(result.selected.score).toBe(12);
+    expect(result.selected.reason).toContain("从高到低");
+    expect(result.spec.coordinate).toEqual({ transform: [{ type: "transpose" }] });
+    expect(result.spec.data?.map((row) => row.品类)).toEqual(["咖啡", "茶饮", "烘焙"]);
+    expect(result.advices.map((advice) => advice.mark)).toContain("bar");
+  });
+
   test("uses a horizontal bar when category labels get crowded", () => {
     const lines = ["品类,销售额"];
     for (let index = 1; index <= 10; index += 1) {

@@ -91,21 +91,28 @@ export function advise(
   if (temporal.length === 0 && nominal.length === 1) {
     const category = nominal[0];
     const crowded = category.unique > 8;
+    const ranked = intents.has("rank") && category.unique <= 12;
+    const primary = ranked || crowded ? "horizontal-bar" : "bar";
+    const secondary = primary === "horizontal-bar" ? "bar" : "horizontal-bar";
     advices.push(
       make(
-        crowded ? "horizontal-bar" : "bar",
-        10,
-        crowded
-          ? "类别较多，横条更方便阅读标签。"
-          : `${category.name}之间比较${measure.name}，柱状图从零开始。`,
+        primary,
+        ranked ? 12 : 10,
+        ranked
+          ? `按${measure.name}从高到低排列${category.name}。`
+          : crowded
+            ? "类别较多，横条更方便阅读标签。"
+            : `${category.name}之间比较${measure.name}，柱状图从零开始。`,
         { x: category.name, y: measure.name },
       ),
     );
     advices.push(
       make(
-        crowded ? "bar" : "horizontal-bar",
+        secondary,
         5,
-        crowded ? "竖柱也能比较，只是标签更容易挤在一起。" : "类别不多，横条和竖柱都可以读。",
+        secondary === "horizontal-bar"
+          ? "类别不多，横条和竖柱都可以读。"
+          : "竖柱也能比较，只是标签更容易挤在一起。",
         { x: category.name, y: measure.name },
       ),
     );
