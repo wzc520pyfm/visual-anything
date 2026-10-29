@@ -1,4 +1,5 @@
 import { advise } from "./advise";
+import { countRepeatedCategory } from "./counts";
 import { chartFacts } from "./facts";
 import { renderHtml } from "./html";
 import { detectIntents } from "./intent";
@@ -45,22 +46,32 @@ export function buildVisualization(input: VizInput): VizResult {
 
   if (rows.length === 0) return fail("没有数据行。", "empty-table");
 
-  const fields = promoteYearFields(rows, profileFields(rows, parsed.table.percentColumns));
-  const measure = fields.find((field) => field.type === "quantitative" && field.max !== undefined);
+  let fields = promoteYearFields(rows, profileFields(rows, parsed.table.percentColumns));
+  let measure = fields.find((field) => field.type === "quantitative" && field.max !== undefined);
+  let countCategory: string | undefined;
   if (!measure) {
-    return {
-      ok: false,
-      error: "没有可用的数值字段，当前版本只绘制统计图。",
-      issues: [
-        {
-          level: "error",
-          code: "no-measure",
-          message: "没有可用的数值字段，当前版本只绘制统计图。",
-        },
-      ],
-      rows,
-      fields,
-    };
+    const counted = countRepeatedCategory(rows, fields);
+    if (counted) {
+      rows = counted.rows;
+      fields = promoteYearFields(rows, profileFields(rows, []));
+      measure = fields.find((field) => field.type === "quantitative" && field.max !== undefined);
+      countCategory = counted.category;
+    }
+    if (!measure) {
+      return {
+        ok: false,
+        error: "没有可用的数值字段，当前版本只绘制统计图。",
+        issues: [
+          {
+            level: "error",
+            code: "no-measure",
+            message: "没有可用的数值字段，当前版本只绘制统计图。",
+          },
+        ],
+        rows,
+        fields,
+      };
+    }
   }
 
   const onlyCategory = fields.filter((field) => field.type === "nominal");
@@ -73,6 +84,14 @@ export function buildVisualization(input: VizInput): VizResult {
   issues.push(...adviceResult.issues);
   if (adviceResult.advices.length === 0) {
     return fail("这组字段还不能画出统计图。", "no-chart", rows, fields);
+  }
+
+  if (countCategory) {
+    issues.push({
+      level: "info",
+      code: "count-chart",
+      message: `没有数值列。柱高是「${countCategory}」出现的次数。`,
+    });
   }
 
   let selected = adviceResult.advices[0];

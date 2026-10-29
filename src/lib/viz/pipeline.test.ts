@@ -419,6 +419,41 @@ describe("buildVisualization", () => {
     );
   });
 
+  test("counts a repeated category when the table has no measure", () => {
+    const result = buildVisualization({
+      text: "品类\n咖啡\n咖啡\n咖啡\n茶饮\n茶饮\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("bar");
+    expect(result.selected.encodings).toEqual({ x: "品类", y: "次数" });
+    expect(result.spec.encode).toMatchObject({ x: "品类", y: "次数" });
+    expect(result.spec.data).toEqual([
+      { 品类: "咖啡", 次数: 3 },
+      { 品类: "茶饮", 次数: 2 },
+    ]);
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "count-chart",
+        level: "info",
+        message: "没有数值列。柱高是「品类」出现的次数。",
+      }),
+    );
+    expect(result.spec.scale).toMatchObject({ y: { domainMin: 0 } });
+  });
+
+  test("still rejects a list of unique labels", () => {
+    const result = buildVisualization({
+      text: "品类\n咖啡\n茶饮\n烘焙\n",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("数值");
+  });
+
   test("rejects inputs that cannot become a statistical chart", () => {
     expect(buildVisualization({ text: "" }).ok).toBe(false);
     expect(buildVisualization({ text: "只有一段说明" }).ok).toBe(false);
