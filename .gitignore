@@ -40,6 +40,9 @@ yarn-error.log*
 # netlify
 .netlify
 
+# local agent scratch
+.superpowers/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
