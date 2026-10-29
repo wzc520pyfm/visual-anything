@@ -45,6 +45,78 @@ describe("buildVisualization", () => {
     expect(result.rows[0]).toMatchObject({ 月份: "2024-01-01", 销售额: 120 });
   });
 
+  test("uses the leading category as the finding when no title was given", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.finding).toBe("「咖啡」的销售额最高，为 120。");
+    expect(result.title).toBe("「咖啡」的销售额最高，为 120");
+    expect(result.alt).toBe("柱状图。「咖啡」的销售额最高，为 120。");
+    expect(result.html).toContain('aria-label="柱状图。「咖啡」的销售额最高，为 120。"');
+    expect(result.html).toContain("「咖啡」的销售额最高，为 120。");
+  });
+
+  test("keeps a caller title and still reports the time change", () => {
+    const result = buildVisualization({
+      text: "月份,销售额\n2024-01-01,10\n2024-02-01,25\n2024-03-01,40\n",
+      title: "月度销售额",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.title).toBe("月度销售额");
+    expect(result.finding).toBe("销售额从 10 变为 40，变化 30。");
+    expect(result.spec.title).toMatchObject({ title: "月度销售额" });
+  });
+
+  test("does not describe a scatter plot as a cause", () => {
+    const result = buildVisualization({
+      text: "花费,成交\n10,30\n20,55\n15,40\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.finding).toContain("不表示原因");
+    expect(result.finding).not.toContain("相关");
+  });
+
+  test("recomputes the measure total, the leading category, and the time change", () => {
+    const bars = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    });
+    expect(bars.ok).toBe(true);
+    if (!bars.ok) return;
+    expect(bars.facts).toEqual({
+      rowCount: 3,
+      measureName: "销售额",
+      sum: 240,
+      minimum: 40,
+      maximum: 120,
+      maximumCategory: "咖啡",
+      missing: 0,
+    });
+
+    const line = buildVisualization({
+      text: "月份,销售额\n2024-01-01,10\n2024-03-01,40\n2024-02-01,25\n",
+    });
+    expect(line.ok).toBe(true);
+    if (!line.ok) return;
+    expect(line.facts).toMatchObject({
+      measureName: "销售额",
+      first: 10,
+      last: 40,
+      delta: 30,
+      sum: 75,
+    });
+    expect(line.facts.maximumCategory).toBeUndefined();
+  });
+
   test("ranks categories with a bar chart and keeps the zero baseline", () => {
     const result = buildVisualization({
       text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
@@ -63,6 +135,23 @@ describe("buildVisualization", () => {
     expect(result.rows.map((row) => row.品类)).toEqual(["茶饮", "咖啡", "烘焙"]);
   });
 
+  test("ranks a short category list as a horizontal bar sorted high to low", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+      intentText: "看排名",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("horizontal-bar");
+    expect(result.selected.score).toBe(12);
+    expect(result.selected.reason).toContain("从高到低");
+    expect(result.spec.coordinate).toEqual({ transform: [{ type: "transpose" }] });
+    expect(result.spec.data?.map((row) => row.品类)).toEqual(["咖啡", "茶饮", "烘焙"]);
+    expect(result.advices.map((advice) => advice.mark)).toContain("bar");
+  });
+
   test("uses a horizontal bar when category labels get crowded", () => {
     const lines = ["品类,销售额"];
     for (let index = 1; index <= 10; index += 1) {
@@ -78,9 +167,26 @@ describe("buildVisualization", () => {
     expect(result.spec.scale).toMatchObject({ y: { domainMin: 0 } });
   });
 
-  test("does not pin a bar axis at zero when values cross zero", () => {
+  test("draws a zero rule when a category measure crosses zero", () => {
     const result = buildVisualization({
       text: "品类,利润\n华东,10\n华北,-4\n华南,3\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("diverging-bar");
+    expect(result.selected.reason).toContain("零");
+    expect(result.spec.type).toBe("view");
+    expect(result.spec.coordinate).toEqual({ transform: [{ type: "transpose" }] });
+    const children = result.spec.children as { type: string; data?: number[] }[];
+    expect(children.map((child) => child.type)).toEqual(["interval", "lineY"]);
+    expect(children[1].data).toEqual([0]);
+  });
+
+  test("keeps an ordinary bar when every value is negative", () => {
+    const result = buildVisualization({
+      text: "品类,利润\n华东,-10\n华北,-4\n华南,-1\n",
     });
 
     expect(result.ok).toBe(true);
@@ -148,6 +254,25 @@ describe("buildVisualization", () => {
     expect(children[0].encode.color).toBe("区域");
   });
 
+  test("reports a group sentence for a multi-series line chart", () => {
+    const result = buildVisualization({
+      text: [
+        "月份,区域,销售额",
+        "2024-01,华东,100",
+        "2024-01,华北,80",
+        "2024-02,华东,110",
+        "2024-02,华北,90",
+      ].join("\n"),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("line");
+    expect(result.finding).toBe(`各组销售额随时间变化，共 ${result.rows.length} 行。`);
+    expect(result.finding).not.toContain("变为");
+  });
+
   test("prefers a pie chart only for an explicit share question", () => {
     const text = "渠道,订单数\n线上,60\n门店,30\n分销,10\n";
     const plain = buildVisualization({ text });
@@ -200,6 +325,86 @@ describe("buildVisualization", () => {
     expect(result.spec.type).toBe("cell");
     expect(result.spec.encode).toMatchObject({ x: "时段", y: "门店", color: "客流" });
     expect(result.advices.some((advice) => advice.mark === "grouped-bar")).toBe(true);
+  });
+
+  test("names the distribution when a single measure is already a histogram", () => {
+    const result = buildVisualization({
+      text: "耗时\n4\n9\n9\n15\n3\n",
+      intentText: "看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("histogram");
+    expect(result.selected.reason).toContain("分布");
+  });
+
+  test("keeps a bar as the default when each group has repeated measures", () => {
+    const text = "门店,耗时\n甲,4\n甲,9\n甲,6\n乙,3\n乙,8\n乙,5\n";
+    const result = buildVisualization({ text });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("bar");
+    expect(result.advices.map((advice) => advice.mark)).toContain("boxplot");
+  });
+
+  test("uses a boxplot when the user asks for a distribution of repeated measures", () => {
+    const result = buildVisualization({
+      text: "门店,耗时\n甲,4\n甲,9\n甲,6\n乙,3\n乙,8\n乙,5\n",
+      intentText: "看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("boxplot");
+    expect(result.selected.encodings).toEqual({ x: "门店", y: "耗时" });
+    expect(result.spec.type).toBe("boxplot");
+    const scale = result.spec.scale as { y: { domainMin?: number; nice?: boolean } };
+    expect(scale.y.nice).toBe(true);
+    expect(scale.y.domainMin).toBeUndefined();
+    expect(result.issues.some((issue) => issue.code === "distribution-needs-repeats")).toBe(false);
+  });
+
+  test("does not switch a one-row-per-category table to a distribution", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+      intentText: "看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("bar");
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "distribution-needs-repeats",
+        level: "info",
+        message: "每个类别只有一个值，看不了分布，仍用柱状图比较大小。",
+      }),
+    );
+  });
+
+  test("names the selected mark in distribution warnings when ranking wins", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+      intentText: "看排名，看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("horizontal-bar");
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "distribution-needs-repeats",
+        level: "info",
+        message: "每个类别只有一个值，看不了分布，仍用条形图。",
+      }),
+    );
   });
 
   test("bins a single measure into a histogram", () => {
@@ -293,6 +498,41 @@ describe("buildVisualization", () => {
     );
   });
 
+  test("counts a repeated category when the table has no measure", () => {
+    const result = buildVisualization({
+      text: "品类\n咖啡\n咖啡\n咖啡\n茶饮\n茶饮\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("bar");
+    expect(result.selected.encodings).toEqual({ x: "品类", y: "次数" });
+    expect(result.spec.encode).toMatchObject({ x: "品类", y: "次数" });
+    expect(result.spec.data).toEqual([
+      { 品类: "咖啡", 次数: 3 },
+      { 品类: "茶饮", 次数: 2 },
+    ]);
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "count-chart",
+        level: "info",
+        message: "没有数值列。柱高是「品类」出现的次数。",
+      }),
+    );
+    expect(result.spec.scale).toMatchObject({ y: { domainMin: 0 } });
+  });
+
+  test("still rejects a list of unique labels", () => {
+    const result = buildVisualization({
+      text: "品类\n咖啡\n茶饮\n烘焙\n",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("数值");
+  });
+
   test("rejects inputs that cannot become a statistical chart", () => {
     expect(buildVisualization({ text: "" }).ok).toBe(false);
     expect(buildVisualization({ text: "只有一段说明" }).ok).toBe(false);
@@ -358,4 +598,18 @@ test("cli writes a standalone html file", async () => {
   const html = readFileSync(output, "utf8");
   expect(html).toContain(`@antv/g2@${G2_VERSION}`);
   expect(html).toContain("月销售");
+});
+
+test("the skill tells agents where not to send a statistical table", () => {
+  const skill = readFileSync(new URL("../../../skills/universal-visualization/SKILL.md", import.meta.url), "utf8");
+
+  expect(skill).toContain("horizontal bar sorted from high to low");
+  expect(skill).toContain("boxplot");
+  expect(skill).toContain("diverging bar");
+  expect(skill).toContain("count-chart");
+  expect(skill).toContain("Do not use this skill to hand-write Vega-Lite");
+  expect(skill).toContain("Do not use this skill for matplotlib, seaborn, or Plotly");
+  expect(skill).toContain("Do not publish through Datawrapper or Flourish");
+  expect(skill).toContain("Do not draw a map");
+  expect(skill).toContain("Do not add a dual axis");
 });

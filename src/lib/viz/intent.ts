@@ -5,7 +5,8 @@ export type Intent =
   | "area"
   | "trend"
   | "rank"
-  | "cause";
+  | "cause"
+  | "count";
 
 export function detectIntents(text?: string): Set<Intent> {
   const intents = new Set<Intent>();
@@ -18,5 +19,6 @@ export function detectIntents(text?: string): Set<Intent> {
   if (/趋势|走势|变化|trend/.test(source)) intents.add("trend");
   if (/排名|排序|rank|\btop\b/.test(source)) intents.add("rank");
   if (/为什么|原因|导致|cause/.test(source)) intents.add("cause");
+  if (/计数|频数|多少个|出现次数|\bcount\b/.test(source)) intents.add("count");
   return intents;
 }

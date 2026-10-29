@@ -47,6 +47,8 @@ export function buildSpec(advice: ChartAdvice, rows: Row[], title: string): G2Sp
     case "bar":
     case "horizontal-bar":
       return barSpec(advice.mark === "horizontal-bar", rows, base, x!, y!);
+    case "diverging-bar":
+      return divergingSpec(rows, title, advice.reason, x!, y!);
     case "grouped-bar":
     case "stacked-bar":
       return groupedSpec(advice.mark === "stacked-bar", rows, base, x!, y!, color!);
@@ -100,6 +102,15 @@ export function buildSpec(advice: ChartAdvice, rows: Row[], title: string): G2Sp
         axis: { x: { title: x! }, y: { title: "频数" } },
         style: { inset: 1 },
       };
+    case "boxplot":
+      return {
+        ...base,
+        type: "boxplot",
+        data: rows,
+        encode: { x: x!, y: y! },
+        scale: { y: { nice: true } },
+        axis: { x: { title: x! }, y: { title: axisTitle(y!) } },
+      };
     default:
       return barSpec(false, rows, base, x ?? "", y ?? "");
   }
@@ -111,8 +122,14 @@ export function summarize(advice: ChartAdvice, rowCount: number): string {
   if (advice.mark === "histogram") {
     return `${label}，对${x}做分箱计数，共 ${rowCount} 行。`;
   }
+  if (advice.mark === "boxplot") {
+    return `${label}，横轴为${x}，纵轴为${y}的分布，共 ${rowCount} 行。`;
+  }
   if (advice.mark === "pie") {
     return `${label}，用${color}看${y}的构成，共 ${rowCount} 行。`;
+  }
+  if (advice.mark === "diverging-bar") {
+    return `${label}，横轴为${y}，以零为界，类别为${x}，共 ${rowCount} 行。`;
   }
   const axes = [x ? `横轴为${x}` : "", y ? `纵轴为${y}` : ""].filter(Boolean).join("，");
   const series = color && advice.mark !== "heatmap" ? `，按${color}分色` : "";
@@ -184,6 +201,40 @@ function barSpec(
     },
     style: { radiusTopLeft: 4, radiusTopRight: 4, maxWidth: 46 },
     ...(horizontal ? { coordinate: { transform: [{ type: "transpose" }] } } : {}),
+  };
+}
+
+function divergingSpec(
+  rows: Row[],
+  title: string,
+  reason: string,
+  x: string,
+  y: string,
+): G2Spec {
+  return {
+    type: "view",
+    autoFit: true,
+    data: sortBy(rows, y, "desc"),
+    title: { title, subtitle: reason, align: "left" },
+    theme: chartTheme(),
+    coordinate: { transform: [{ type: "transpose" }] },
+    interaction: interaction(false),
+    legend: false,
+    children: [
+      {
+        type: "interval",
+        encode: { x, y },
+        scale: { x: { padding: 0.35 }, y: { nice: true } },
+        axis: { x: { title: x }, y: { title: axisTitle(y) } },
+        style: { maxWidth: 28 },
+      },
+      {
+        type: "lineY",
+        data: [0],
+        style: { stroke: "#1f1a17", lineWidth: 1 },
+        encode: {},
+      },
+    ],
   };
 }
 

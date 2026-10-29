@@ -192,7 +192,7 @@ export function Workbench() {
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {result.ok ? (
-                <div aria-describedby="chart-summary">
+                <div role="img" aria-describedby="chart-summary" aria-label={result.alt}>
                   <AntvChart spec={result.spec} />
                 </div>
               ) : (

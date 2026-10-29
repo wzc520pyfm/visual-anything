@@ -13,7 +13,9 @@ export type Mark =
   | "scatter"
   | "pie"
   | "heatmap"
-  | "histogram";
+  | "histogram"
+  | "boxplot"
+  | "diverging-bar";
 
 export type FieldType = "quantitative" | "nominal" | "temporal";
 
@@ -51,6 +53,19 @@ export interface ChartAdvice {
   encodings: Encodings;
 }
 
+export interface ChartFacts {
+  rowCount: number;
+  measureName?: string;
+  sum?: number;
+  minimum?: number;
+  maximum?: number;
+  maximumCategory?: string;
+  missing?: number;
+  first?: number;
+  last?: number;
+  delta?: number;
+}
+
 export type G2Spec = {
   type: string;
   autoFit: boolean;
@@ -63,7 +78,14 @@ export type G2Spec = {
   coordinate?: Record<string, unknown>;
   interaction: Record<string, unknown>;
   legend: false | Record<string, unknown>;
-  children?: { type: string; encode: Record<string, string>; style?: Record<string, unknown> }[];
+  children?: {
+    type: string;
+    encode?: Record<string, string>;
+    data?: number[];
+    scale?: Record<string, Record<string, unknown>>;
+    axis?: Record<string, unknown>;
+    style?: Record<string, unknown>;
+  }[];
   style?: Record<string, unknown>;
   labels?: Record<string, unknown>[];
   theme?: Record<string, unknown>;
@@ -73,6 +95,8 @@ export interface VizSuccess {
   ok: true;
   engine: "antv-g2";
   title: string;
+  finding: string;
+  alt: string;
   rows: Row[];
   fields: FieldProfile[];
   advices: ChartAdvice[];
@@ -81,6 +105,7 @@ export interface VizSuccess {
   issues: Issue[];
   html: string;
   summary: string;
+  facts: ChartFacts;
 }
 
 export interface VizFailure {
@@ -113,6 +138,8 @@ export const MARK_LABEL: Record<Mark, string> = {
   pie: "饼图",
   heatmap: "热力图",
   histogram: "直方图",
+  boxplot: "箱线图",
+  "diverging-bar": "发散条形图",
 };
 
 export const ANTV_PALETTE = [

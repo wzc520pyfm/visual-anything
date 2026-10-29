@@ -1,4 +1,6 @@
 import { advise } from "./advise";
+import { countRepeatedCategory } from "./counts";
+import { altText, chartFacts, findingSentence } from "./facts";
 import { renderHtml } from "./html";
 import { detectIntents } from "./intent";
 import { parseTable } from "./parse";
@@ -44,28 +46,52 @@ export function buildVisualization(input: VizInput): VizResult {
 
   if (rows.length === 0) return fail("没有数据行。", "empty-table");
 
-  const fields = promoteYearFields(rows, profileFields(rows, parsed.table.percentColumns));
-  const measure = fields.find((field) => field.type === "quantitative" && field.max !== undefined);
+  let fields = promoteYearFields(rows, profileFields(rows, parsed.table.percentColumns));
+  let measure = fields.find((field) => field.type === "quantitative" && field.max !== undefined);
+  let countCategory: string | undefined;
   if (!measure) {
-    return {
-      ok: false,
-      error: "没有可用的数值字段，当前版本只绘制统计图。",
-      issues: [
-        {
-          level: "error",
-          code: "no-measure",
-          message: "没有可用的数值字段，当前版本只绘制统计图。",
-        },
-      ],
-      rows,
-      fields,
-    };
+    const counted = countRepeatedCategory(rows, fields);
+    if (counted) {
+      rows = counted.rows;
+      fields = promoteYearFields(rows, profileFields(rows, []));
+      measure = fields.find((field) => field.type === "quantitative" && field.max !== undefined);
+      countCategory = counted.category;
+    }
+    if (!measure) {
+      return {
+        ok: false,
+        error: "没有可用的数值字段，当前版本只绘制统计图。",
+        issues: [
+          {
+            level: "error",
+            code: "no-measure",
+            message: "没有可用的数值字段，当前版本只绘制统计图。",
+          },
+        ],
+        rows,
+        fields,
+      };
+    }
   }
 
-  const adviceResult = advise(fields, detectIntents(input.intentText));
+  const onlyCategory = fields.filter((field) => field.type === "nominal");
+  const repeatedMeasures =
+    onlyCategory.length === 1 &&
+    fields.every((field) => field.type !== "temporal") &&
+    onlyCategory[0].unique >= 2 &&
+    rows.length >= onlyCategory[0].unique * 2;
+  const adviceResult = advise(fields, detectIntents(input.intentText), { repeatedMeasures });
   issues.push(...adviceResult.issues);
   if (adviceResult.advices.length === 0) {
     return fail("这组字段还不能画出统计图。", "no-chart", rows, fields);
+  }
+
+  if (countCategory) {
+    issues.push({
+      level: "info",
+      code: "count-chart",
+      message: `没有数值列。柱高是「${countCategory}」出现的次数。`,
+    });
   }
 
   let selected = adviceResult.advices[0];
@@ -81,6 +107,27 @@ export function buildVisualization(input: VizInput): VizResult {
     }
   }
 
+  const category = fields.find((field) => field.type === "nominal");
+  const askedDistribution = detectIntents(input.intentText).has("distribution");
+  if (
+    askedDistribution &&
+    selected.mark !== "histogram" &&
+    selected.mark !== "boxplot" &&
+    category &&
+    fields.filter((field) => field.type === "nominal").length === 1 &&
+    fields.filter((field) => field.type === "temporal").length === 0 &&
+    category.unique === rows.length
+  ) {
+    issues.push({
+      level: "info",
+      code: "distribution-needs-repeats",
+      message:
+        selected.mark === "bar"
+          ? "每个类别只有一个值，看不了分布，仍用柱状图比较大小。"
+          : `每个类别只有一个值，看不了分布，仍用${MARK_LABEL[selected.mark]}。`,
+    });
+  }
+
   const missingField = [selected.encodings.x, selected.encodings.y, selected.encodings.color]
     .filter((name): name is string => Boolean(name))
     .map((name) => fields.find((field) => field.name === name))
@@ -93,7 +140,11 @@ export function buildVisualization(input: VizInput): VizResult {
     });
   }
 
-  const title = input.title?.trim() || defaultTitle(selected);
+  const facts = chartFacts(selected, rows, fields);
+  const counted = issues.some((issue) => issue.code === "count-chart");
+  const finding = findingSentence(selected, facts, counted);
+  const alt = altText(selected, facts, finding);
+  const title = input.title?.trim() || finding.replace(/。$/, "");
   const spec = buildSpec(selected, rows, title);
   const summary = summarize(selected, rows.length);
 
@@ -101,6 +152,8 @@ export function buildVisualization(input: VizInput): VizResult {
     ok: true,
     engine: "antv-g2",
     title,
+    finding,
+    alt,
     rows,
     fields,
     advices: adviceResult.advices,
@@ -108,17 +161,9 @@ export function buildVisualization(input: VizInput): VizResult {
     spec,
     issues,
     summary,
-    html: renderHtml({ title, summary, spec, issues }),
+    facts,
+    html: renderHtml({ title, summary, finding, alt, spec, issues }),
   };
-}
-
-function defaultTitle(selected: ChartAdvice): string {
-  const { x, y, color } = selected.encodings;
-  if (selected.mark === "pie") return `${color ?? ""}的${y ?? ""}构成`;
-  if (selected.mark === "histogram") return `${x ?? ""}分布`;
-  if (selected.mark === "heatmap") return `${color ?? ""}热力`;
-  if (selected.mark === "scatter") return `${x ?? ""}与${y ?? ""}`;
-  return y && x ? `${y}按${x}` : "未命名图表";
 }
 
 function promoteYearFields(rows: Row[], fields: FieldProfile[]): FieldProfile[] {

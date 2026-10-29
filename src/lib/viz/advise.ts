@@ -4,6 +4,7 @@ import { MARK_LABEL, type ChartAdvice, type Encodings, type FieldProfile, type I
 export function advise(
   fields: FieldProfile[],
   intents: Set<Intent>,
+  options?: { repeatedMeasures?: boolean },
 ): { advices: ChartAdvice[]; issues: Issue[] } {
   const issues: Issue[] = [];
   const quantitative = fields.filter((field) => field.type === "quantitative" && field.max !== undefined);
@@ -91,21 +92,40 @@ export function advise(
   if (temporal.length === 0 && nominal.length === 1) {
     const category = nominal[0];
     const crowded = category.unique > 8;
+    const ranked = intents.has("rank") && category.unique <= 12;
+    const primary = ranked || crowded ? "horizontal-bar" : "bar";
+    const secondary = primary === "horizontal-bar" ? "bar" : "horizontal-bar";
+    const crossesBothWays = measure.negativeCount > 0 && (measure.max ?? 0) > 0;
+    const comparisonScore = crossesBothWays ? 6 : ranked ? 12 : 10;
+    if (crossesBothWays) {
+      advices.push(
+        make(
+          "diverging-bar",
+          12,
+          `${measure.name}有正有负，以零为界向两侧展开。`,
+          { x: category.name, y: measure.name },
+        ),
+      );
+    }
     advices.push(
       make(
-        crowded ? "horizontal-bar" : "bar",
-        10,
-        crowded
-          ? "类别较多，横条更方便阅读标签。"
-          : `${category.name}之间比较${measure.name}，柱状图从零开始。`,
+        primary,
+        comparisonScore,
+        ranked
+          ? `按${measure.name}从高到低排列${category.name}。`
+          : crowded
+            ? "类别较多，横条更方便阅读标签。"
+            : `${category.name}之间比较${measure.name}，柱状图从零开始。`,
         { x: category.name, y: measure.name },
       ),
     );
     advices.push(
       make(
-        crowded ? "bar" : "horizontal-bar",
+        secondary,
         5,
-        crowded ? "竖柱也能比较，只是标签更容易挤在一起。" : "类别不多，横条和竖柱都可以读。",
+        secondary === "horizontal-bar"
+          ? "类别不多，横条和竖柱都可以读。"
+          : "竖柱也能比较，只是标签更容易挤在一起。",
         { x: category.name, y: measure.name },
       ),
     );
@@ -116,6 +136,16 @@ export function advise(
           intents.has("part-to-whole") ? 12 : 3,
           "类别少且数值都非负，饼图只回答构成问题。",
           { y: measure.name, color: category.name },
+        ),
+      );
+    }
+    if (options?.repeatedMeasures && measure) {
+      advices.push(
+        make(
+          "boxplot",
+          intents.has("distribution") ? 12 : 7,
+          `「${nominal[0].name}」各组有多条${measure.name}，箱线图用来看分布而不是合计。`,
+          { x: nominal[0].name, y: measure.name },
         ),
       );
     }
@@ -175,7 +205,14 @@ export function advise(
 
   if (nominal.length === 0 && temporal.length === 0 && quantitative.length === 1) {
     advices.push(
-      make("histogram", 10, `只有「${measure.name}」一个数值，分箱后看分布。`, { x: measure.name }),
+      make(
+        "histogram",
+        10,
+        intents.has("distribution")
+          ? `要看「${measure.name}」的分布，按取值分箱计数。`
+          : `只有「${measure.name}」一个数值，分箱后看分布。`,
+        { x: measure.name },
+      ),
     );
   }
 
