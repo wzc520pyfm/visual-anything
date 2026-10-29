@@ -1,4 +1,4 @@
-# wanxiang-viz
+# Visual Anything
 
 把一张整理好的表编译成一张 AntV G2 图。选图由字段形状和一句意图决定，同一输入得到同一张图、同一句结论。
 
@@ -7,11 +7,11 @@
 ## 安装
 
 ```bash
-npm install wanxiang-viz
+npm install visual-anything
 ```
 
 ```ts
-import { buildVisualization } from "wanxiang-viz";
+import { buildVisualization } from "visual-anything";
 
 const result = buildVisualization({
   text: "品类,销售额\n咖啡,120\n茶饮,80\n",
@@ -22,7 +22,7 @@ const result = buildVisualization({
 命令行：
 
 ```bash
-npx wanxiang-viz --input data.csv --out chart.html --title 区域月销售额 --intent 看趋势
+npx visual-anything --input data.csv --out chart.html --title 区域月销售额 --intent 看趋势
 ```
 
 安装和 `npm test` 都会编译到 `dist`。网页和测试导入的是这份编译结果，和发布到 npm 的文件相同。改完 `src` 之后重新执行 `npm test` 或 `npm run dev`。

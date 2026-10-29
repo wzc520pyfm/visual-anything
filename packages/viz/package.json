@@ -1,5 +1,5 @@
 {
-  "name": "wanxiang-viz",
+  "name": "visual-anything",
   "version": "0.1.0",
   "description": "Deterministic compiler that turns a table into one AntV G2 chart, a finding, and the reasons it refused another mark.",
   "license": "MIT",
@@ -16,7 +16,7 @@
     }
   },
   "bin": {
-    "wanxiang-viz": "./dist/cli.js"
+    "visual-anything": "./dist/cli.js"
   },
   "files": [
     "dist",

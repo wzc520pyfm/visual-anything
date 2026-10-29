@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["wanxiang-viz"],
+  transpilePackages: ["visual-anything"],
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

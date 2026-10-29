@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { buildVisualization } from "wanxiang-viz";
+import { buildVisualization } from "visual-anything";
 
 interface SuccessExpect {
   ok: true;

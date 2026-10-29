@@ -20,10 +20,10 @@ Do not use this for flowcharts, org charts, knowledge graphs, or infographics. T
 Install the compiler. Do not copy chart code out of this file.
 
 ```bash
-npm install wanxiang-viz
+npm install visual-anything
 ```
 
-1. Call `buildVisualization` from `wanxiang-viz`.
+1. Call `buildVisualization` from `visual-anything`.
 2. Pass `text` or `rows`, plus `title` and `intentText` when the user named them.
 3. If `ok` is false, show `error` and stop.
 4. Use `selected` for the chart, `advices` if the user wants another valid mark, and `issues` in the caption.
@@ -31,7 +31,7 @@ npm install wanxiang-viz
 6. To force a mark, pass `mark` only when that mark appears in `advices`.
 
 ```ts
-import { buildVisualization } from "wanxiang-viz";
+import { buildVisualization } from "visual-anything";
 
 const result = buildVisualization({
   text: csv,
@@ -43,7 +43,7 @@ const result = buildVisualization({
 CLI:
 
 ```bash
-npx wanxiang-viz --input data.csv --out chart.html --title 区域月销售额 --intent 看趋势
+npx visual-anything --input data.csv --out chart.html --title 区域月销售额 --intent 看趋势
 ```
 
 ## Rules the pipeline already enforces
