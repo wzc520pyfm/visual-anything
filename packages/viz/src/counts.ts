@@ -1,4 +1,4 @@
-import type { FieldProfile, Row } from "./types";
+import type { FieldProfile, Row } from "./types.js";
 
 export interface CountTable {
   rows: Row[];

@@ -1,5 +1,5 @@
-import type { Intent } from "./intent";
-import { MARK_LABEL, type ChartAdvice, type Encodings, type FieldProfile, type Issue, type Mark } from "./types";
+import type { Intent } from "./intent.js";
+import { MARK_LABEL, type ChartAdvice, type Encodings, type FieldProfile, type Issue, type Mark } from "./types.js";
 
 export function advise(
   fields: FieldProfile[],

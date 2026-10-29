@@ -1,0 +1,41 @@
+{
+  "name": "wanxiang-viz",
+  "version": "0.1.0",
+  "description": "Deterministic compiler that turns a table into one AntV G2 chart, a finding, and the reasons it refused another mark.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzc520pyfm/visual-anything.git",
+    "directory": "packages/viz"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "wanxiang-viz": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "fixtures",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && chmod +x dist/cli.js",
+    "prepare": "npm run build",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

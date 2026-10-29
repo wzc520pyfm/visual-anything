@@ -1,5 +1,5 @@
-import type { ChartAdvice, ChartFacts, FieldProfile, Row } from "./types";
-import { MARK_LABEL } from "./types";
+import type { ChartAdvice, ChartFacts, FieldProfile, Row } from "./types.js";
+import { MARK_LABEL } from "./types.js";
 
 export function chartFacts(advice: ChartAdvice, rows: Row[], fields: FieldProfile[]): ChartFacts {
   const measureName = advice.mark === "heatmap"

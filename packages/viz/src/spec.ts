@@ -1,5 +1,5 @@
-import { isFullDate } from "./profile";
-import { ANTV_PALETTE, MARK_LABEL, type ChartAdvice, type G2Spec, type Row } from "./types";
+import { isFullDate } from "./profile.js";
+import { ANTV_PALETTE, MARK_LABEL, type ChartAdvice, type G2Spec, type Row } from "./types.js";
 
 const HEAT_RANGE = ["#fff7ec", "#fdbb84", "#e34a33", "#7f0000"];
 const SANS = '"PingFang SC", "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif';

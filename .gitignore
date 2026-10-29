@@ -19,6 +19,7 @@
 
 # production
 /build
+packages/viz/dist
 
 # misc
 .DS_Store

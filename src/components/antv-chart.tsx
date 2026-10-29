@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { G2Spec } from "@/lib/viz/types";
+import type { G2Spec } from "wanxiang-viz";
 
 export function AntvChart({ spec }: { spec: G2Spec }) {
   const hostRef = useRef<HTMLDivElement>(null);

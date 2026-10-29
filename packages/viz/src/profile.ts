@@ -1,4 +1,4 @@
-import type { FieldProfile, Row } from "./types";
+import type { FieldProfile, Row } from "./types.js";
 
 const FULL_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const YEAR_MONTH = /^\d{4}[-/]\d{2}$/;

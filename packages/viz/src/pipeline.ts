@@ -1,11 +1,11 @@
-import { advise } from "./advise";
-import { countRepeatedCategory } from "./counts";
-import { altText, chartFacts, findingSentence } from "./facts";
-import { renderHtml } from "./html";
-import { detectIntents } from "./intent";
-import { parseTable } from "./parse";
-import { profileFields } from "./profile";
-import { buildSpec, summarize } from "./spec";
+import { advise } from "./advise.js";
+import { countRepeatedCategory } from "./counts.js";
+import { altText, chartFacts, findingSentence } from "./facts.js";
+import { renderHtml } from "./html.js";
+import { detectIntents } from "./intent.js";
+import { parseTable } from "./parse.js";
+import { profileFields } from "./profile.js";
+import { buildSpec, summarize } from "./spec.js";
 import {
   G2_VERSION,
   MARK_LABEL,
@@ -16,10 +16,10 @@ import {
   type Row,
   type VizInput,
   type VizResult,
-} from "./types";
+} from "./types.js";
 
 export { G2_VERSION, V2_ENGINES };
-export type { Mark, VizInput, VizResult, VizSuccess } from "./types";
+export type { Mark, VizInput, VizResult, VizSuccess } from "./types.js";
 
 const DEFAULT_MAX_ROWS = 5000;
 

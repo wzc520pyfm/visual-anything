@@ -1,4 +1,4 @@
-import type { Mark } from "./types";
+import type { Mark } from "./types.js";
 
 export interface Sample {
   id: string;

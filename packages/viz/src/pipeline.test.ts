@@ -2,9 +2,9 @@ import { describe, expect, test } from "vitest";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { runCli } from "../../cli";
-import { SAMPLES } from "./samples";
-import { G2_VERSION, V2_ENGINES, buildVisualization } from "./pipeline";
+import { runCli } from "./cli.js";
+import { SAMPLES } from "./samples.js";
+import { G2_VERSION, V2_ENGINES, buildVisualization } from "./pipeline.js";
 
 const lineCsv = "月份,销售额\n2024-01-01,120\n2024-02-01,132\n2024-03-01,128\n";
 
@@ -607,6 +607,8 @@ test("the skill tells agents where not to send a statistical table", () => {
   expect(skill).toContain("boxplot");
   expect(skill).toContain("diverging bar");
   expect(skill).toContain("count-chart");
+  expect(skill).toContain("npm install wanxiang-viz");
+  expect(skill).toContain("does not group, filter, or sum detail rows");
   expect(skill).toContain("Do not use this skill to hand-write Vega-Lite");
   expect(skill).toContain("Do not use this skill for matplotlib, seaborn, or Plotly");
   expect(skill).toContain("Do not publish through Datawrapper or Flourish");

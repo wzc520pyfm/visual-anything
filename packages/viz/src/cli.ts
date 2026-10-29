@@ -1,7 +1,8 @@
+#!/usr/bin/env node
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { buildVisualization } from "./lib/viz/pipeline";
+import { buildVisualization } from "./pipeline.js";
 
 interface CliArgs {
   input?: string;

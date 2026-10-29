@@ -17,7 +17,13 @@ Do not use this for flowcharts, org charts, knowledge graphs, or infographics. T
 
 ## Pipeline
 
-1. Put the table in `buildVisualization` from `src/lib/viz/pipeline.ts`.
+Install the compiler. Do not copy chart code out of this file.
+
+```bash
+npm install wanxiang-viz
+```
+
+1. Call `buildVisualization` from `wanxiang-viz`.
 2. Pass `text` or `rows`, plus `title` and `intentText` when the user named them.
 3. If `ok` is false, show `error` and stop.
 4. Use `selected` for the chart, `advices` if the user wants another valid mark, and `issues` in the caption.
@@ -25,7 +31,7 @@ Do not use this for flowcharts, org charts, knowledge graphs, or infographics. T
 6. To force a mark, pass `mark` only when that mark appears in `advices`.
 
 ```ts
-import { buildVisualization } from "./src/lib/viz/pipeline";
+import { buildVisualization } from "wanxiang-viz";
 
 const result = buildVisualization({
   text: csv,
@@ -34,10 +40,10 @@ const result = buildVisualization({
 });
 ```
 
-CLI, from the repo root:
+CLI:
 
 ```bash
-npm run viz -- --input examples/region-sales.csv --out chart.html --title 区域月销售额 --intent 看趋势
+npx wanxiang-viz --input data.csv --out chart.html --title 区域月销售额 --intent 看趋势
 ```
 
 ## Rules the pipeline already enforces
@@ -55,6 +61,7 @@ npm run viz -- --input examples/region-sales.csv --out chart.html --title 区域
 - `facts`, `finding`, and `alt` are recomputed from the drawn rows. A caller-supplied title is kept. The finding does not claim a cause, a correlation coefficient, or a share that was not in the table.
 - “为什么 / 原因” adds `no-causation`. Describe the pattern. Do not name a cause the rows do not establish.
 - More than 5000 rows are truncated with `row-limit`. Say that the chart uses the first 5000.
+- This compiler does not group, filter, or sum detail rows. Aggregate first, name the aggregation in the title, then call `buildVisualization`. The only count it computes is `count-chart`.
 - Do not use this skill to hand-write Vega-Lite, Observable Plot, or ECharts. Do not use this skill for matplotlib, seaborn, or Plotly. Those skills author library code; this one calls `buildVisualization`.
 - Do not publish through Datawrapper or Flourish. Deliver `html` or `spec`.
 - Do not draw a map, a graph, a flowchart, or an infographic.
