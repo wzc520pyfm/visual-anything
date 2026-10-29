@@ -1,6 +1,6 @@
 {
   "name": "visual-anything",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deterministic compiler that turns a table into one AntV G2 chart, a finding, and the reasons it refused another mark.",
   "license": "MIT",
   "type": "module",
