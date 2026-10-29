@@ -126,9 +126,26 @@ describe("buildVisualization", () => {
     expect(result.spec.scale).toMatchObject({ y: { domainMin: 0 } });
   });
 
-  test("does not pin a bar axis at zero when values cross zero", () => {
+  test("draws a zero rule when a category measure crosses zero", () => {
     const result = buildVisualization({
       text: "品类,利润\n华东,10\n华北,-4\n华南,3\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("diverging-bar");
+    expect(result.selected.reason).toContain("零");
+    expect(result.spec.type).toBe("view");
+    expect(result.spec.coordinate).toEqual({ transform: [{ type: "transpose" }] });
+    const children = result.spec.children as { type: string; data?: number[] }[];
+    expect(children.map((child) => child.type)).toEqual(["interval", "lineY"]);
+    expect(children[1].data).toEqual([0]);
+  });
+
+  test("keeps an ordinary bar when every value is negative", () => {
+    const result = buildVisualization({
+      text: "品类,利润\n华东,-10\n华北,-4\n华南,-1\n",
     });
 
     expect(result.ok).toBe(true);

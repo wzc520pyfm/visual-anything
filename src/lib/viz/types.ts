@@ -78,7 +78,14 @@ export type G2Spec = {
   coordinate?: Record<string, unknown>;
   interaction: Record<string, unknown>;
   legend: false | Record<string, unknown>;
-  children?: { type: string; encode: Record<string, string>; style?: Record<string, unknown> }[];
+  children?: {
+    type: string;
+    encode?: Record<string, string>;
+    data?: number[];
+    scale?: Record<string, Record<string, unknown>>;
+    axis?: Record<string, unknown>;
+    style?: Record<string, unknown>;
+  }[];
   style?: Record<string, unknown>;
   labels?: Record<string, unknown>[];
   theme?: Record<string, unknown>;

@@ -95,10 +95,22 @@ export function advise(
     const ranked = intents.has("rank") && category.unique <= 12;
     const primary = ranked || crowded ? "horizontal-bar" : "bar";
     const secondary = primary === "horizontal-bar" ? "bar" : "horizontal-bar";
+    const crossesBothWays = measure.negativeCount > 0 && (measure.max ?? 0) > 0;
+    const comparisonScore = crossesBothWays ? 6 : ranked ? 12 : 10;
+    if (crossesBothWays) {
+      advices.push(
+        make(
+          "diverging-bar",
+          12,
+          `${measure.name}有正有负，以零为界向两侧展开。`,
+          { x: category.name, y: measure.name },
+        ),
+      );
+    }
     advices.push(
       make(
         primary,
-        ranked ? 12 : 10,
+        comparisonScore,
         ranked
           ? `按${measure.name}从高到低排列${category.name}。`
           : crowded
