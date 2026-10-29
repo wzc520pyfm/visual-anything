@@ -254,6 +254,25 @@ describe("buildVisualization", () => {
     expect(children[0].encode.color).toBe("区域");
   });
 
+  test("reports a group sentence for a multi-series line chart", () => {
+    const result = buildVisualization({
+      text: [
+        "月份,区域,销售额",
+        "2024-01,华东,100",
+        "2024-01,华北,80",
+        "2024-02,华东,110",
+        "2024-02,华北,90",
+      ].join("\n"),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("line");
+    expect(result.finding).toBe(`各组销售额随时间变化，共 ${result.rows.length} 行。`);
+    expect(result.finding).not.toContain("变为");
+  });
+
   test("prefers a pie chart only for an explicit share question", () => {
     const text = "渠道,订单数\n线上,60\n门店,30\n分销,10\n";
     const plain = buildVisualization({ text });
