@@ -1,6 +1,6 @@
 import { advise } from "./advise";
 import { countRepeatedCategory } from "./counts";
-import { chartFacts } from "./facts";
+import { altText, chartFacts, findingSentence } from "./facts";
 import { renderHtml } from "./html";
 import { detectIntents } from "./intent";
 import { parseTable } from "./parse";
@@ -137,15 +137,20 @@ export function buildVisualization(input: VizInput): VizResult {
     });
   }
 
-  const title = input.title?.trim() || defaultTitle(selected);
+  const facts = chartFacts(selected, rows, fields);
+  const counted = issues.some((issue) => issue.code === "count-chart");
+  const finding = findingSentence(selected, facts, counted);
+  const alt = altText(selected, facts, finding);
+  const title = input.title?.trim() || finding.replace(/。$/, "");
   const spec = buildSpec(selected, rows, title);
   const summary = summarize(selected, rows.length);
-  const facts = chartFacts(selected, rows, fields);
 
   return {
     ok: true,
     engine: "antv-g2",
     title,
+    finding,
+    alt,
     rows,
     fields,
     advices: adviceResult.advices,
@@ -154,17 +159,8 @@ export function buildVisualization(input: VizInput): VizResult {
     issues,
     summary,
     facts,
-    html: renderHtml({ title, summary, spec, issues }),
+    html: renderHtml({ title, summary, finding, alt, spec, issues }),
   };
-}
-
-function defaultTitle(selected: ChartAdvice): string {
-  const { x, y, color } = selected.encodings;
-  if (selected.mark === "pie") return `${color ?? ""}的${y ?? ""}构成`;
-  if (selected.mark === "histogram") return `${x ?? ""}分布`;
-  if (selected.mark === "heatmap") return `${color ?? ""}热力`;
-  if (selected.mark === "scatter") return `${x ?? ""}与${y ?? ""}`;
-  return y && x ? `${y}按${x}` : "未命名图表";
 }
 
 function promoteYearFields(rows: Row[], fields: FieldProfile[]): FieldProfile[] {

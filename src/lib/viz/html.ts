@@ -3,6 +3,8 @@ import { G2_VERSION, type G2Spec, type Issue } from "./types";
 export function renderHtml(input: {
   title: string;
   summary: string;
+  finding: string;
+  alt: string;
   spec: G2Spec;
   issues: Issue[];
 }): string {
@@ -37,7 +39,8 @@ export function renderHtml(input: {
     <p class="kicker">万象 · ANTV G2 ${G2_VERSION}</p>
     <h1>${escapeHtml(input.title)}</h1>
     <p>${escapeHtml(input.summary)}</p>
-    <div id="chart"></div>
+    <p class="finding">${escapeHtml(input.finding)}</p>
+    <div id="chart" role="img" aria-label="${escapeHtml(input.alt)}"></div>
     ${issueList}
   </main>
   <script type="module">

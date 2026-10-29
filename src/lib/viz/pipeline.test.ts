@@ -45,6 +45,47 @@ describe("buildVisualization", () => {
     expect(result.rows[0]).toMatchObject({ 月份: "2024-01-01", 销售额: 120 });
   });
 
+  test("uses the leading category as the finding when no title was given", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.finding).toBe("「咖啡」的销售额最高，为 120。");
+    expect(result.title).toBe("「咖啡」的销售额最高，为 120");
+    expect(result.alt).toBe("柱状图。「咖啡」的销售额最高，为 120。");
+    expect(result.html).toContain('aria-label="柱状图。「咖啡」的销售额最高，为 120。"');
+    expect(result.html).toContain("「咖啡」的销售额最高，为 120。");
+  });
+
+  test("keeps a caller title and still reports the time change", () => {
+    const result = buildVisualization({
+      text: "月份,销售额\n2024-01-01,10\n2024-02-01,25\n2024-03-01,40\n",
+      title: "月度销售额",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.title).toBe("月度销售额");
+    expect(result.finding).toBe("销售额从 10 变为 40，变化 30。");
+    expect(result.spec.title).toMatchObject({ title: "月度销售额" });
+  });
+
+  test("does not describe a scatter plot as a cause", () => {
+    const result = buildVisualization({
+      text: "花费,成交\n10,30\n20,55\n15,40\n",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.finding).toContain("不表示原因");
+    expect(result.finding).not.toContain("相关");
+  });
+
   test("recomputes the measure total, the leading category, and the time change", () => {
     const bars = buildVisualization({
       text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",

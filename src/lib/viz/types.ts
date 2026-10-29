@@ -95,6 +95,8 @@ export interface VizSuccess {
   ok: true;
   engine: "antv-g2";
   title: string;
+  finding: string;
+  alt: string;
   rows: Row[];
   fields: FieldProfile[];
   advices: ChartAdvice[];
