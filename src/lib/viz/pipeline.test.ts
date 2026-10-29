@@ -45,6 +45,37 @@ describe("buildVisualization", () => {
     expect(result.rows[0]).toMatchObject({ 月份: "2024-01-01", 销售额: 120 });
   });
 
+  test("recomputes the measure total, the leading category, and the time change", () => {
+    const bars = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+    });
+    expect(bars.ok).toBe(true);
+    if (!bars.ok) return;
+    expect(bars.facts).toEqual({
+      rowCount: 3,
+      measureName: "销售额",
+      sum: 240,
+      minimum: 40,
+      maximum: 120,
+      maximumCategory: "咖啡",
+      missing: 0,
+    });
+
+    const line = buildVisualization({
+      text: "月份,销售额\n2024-01-01,10\n2024-03-01,40\n2024-02-01,25\n",
+    });
+    expect(line.ok).toBe(true);
+    if (!line.ok) return;
+    expect(line.facts).toMatchObject({
+      measureName: "销售额",
+      first: 10,
+      last: 40,
+      delta: 30,
+      sum: 75,
+    });
+    expect(line.facts.maximumCategory).toBeUndefined();
+  });
+
   test("ranks categories with a bar chart and keeps the zero baseline", () => {
     const result = buildVisualization({
       text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",

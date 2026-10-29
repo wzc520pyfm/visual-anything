@@ -1,4 +1,5 @@
 import { advise } from "./advise";
+import { chartFacts } from "./facts";
 import { renderHtml } from "./html";
 import { detectIntents } from "./intent";
 import { parseTable } from "./parse";
@@ -113,6 +114,7 @@ export function buildVisualization(input: VizInput): VizResult {
   const title = input.title?.trim() || defaultTitle(selected);
   const spec = buildSpec(selected, rows, title);
   const summary = summarize(selected, rows.length);
+  const facts = chartFacts(selected, rows, fields);
 
   return {
     ok: true,
@@ -125,6 +127,7 @@ export function buildVisualization(input: VizInput): VizResult {
     spec,
     issues,
     summary,
+    facts,
     html: renderHtml({ title, summary, spec, issues }),
   };
 }

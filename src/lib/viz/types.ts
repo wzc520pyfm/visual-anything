@@ -51,6 +51,19 @@ export interface ChartAdvice {
   encodings: Encodings;
 }
 
+export interface ChartFacts {
+  rowCount: number;
+  measureName?: string;
+  sum?: number;
+  minimum?: number;
+  maximum?: number;
+  maximumCategory?: string;
+  missing?: number;
+  first?: number;
+  last?: number;
+  delta?: number;
+}
+
 export type G2Spec = {
   type: string;
   autoFit: boolean;
@@ -81,6 +94,7 @@ export interface VizSuccess {
   issues: Issue[];
   html: string;
   summary: string;
+  facts: ChartFacts;
 }
 
 export interface VizFailure {
