@@ -182,7 +182,14 @@ export function advise(
 
   if (nominal.length === 0 && temporal.length === 0 && quantitative.length === 1) {
     advices.push(
-      make("histogram", 10, `只有「${measure.name}」一个数值，分箱后看分布。`, { x: measure.name }),
+      make(
+        "histogram",
+        10,
+        intents.has("distribution")
+          ? `要看「${measure.name}」的分布，按取值分箱计数。`
+          : `只有「${measure.name}」一个数值，分箱后看分布。`,
+        { x: measure.name },
+      ),
     );
   }
 

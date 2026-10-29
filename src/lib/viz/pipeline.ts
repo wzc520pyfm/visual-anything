@@ -81,6 +81,23 @@ export function buildVisualization(input: VizInput): VizResult {
     }
   }
 
+  const category = fields.find((field) => field.type === "nominal");
+  const askedDistribution = detectIntents(input.intentText).has("distribution");
+  if (
+    askedDistribution &&
+    selected.mark !== "histogram" &&
+    category &&
+    fields.filter((field) => field.type === "nominal").length === 1 &&
+    fields.filter((field) => field.type === "temporal").length === 0 &&
+    category.unique === rows.length
+  ) {
+    issues.push({
+      level: "info",
+      code: "distribution-needs-repeats",
+      message: "每个类别只有一个值，看不了分布，仍用柱状图比较大小。",
+    });
+  }
+
   const missingField = [selected.encodings.x, selected.encodings.y, selected.encodings.color]
     .filter((name): name is string => Boolean(name))
     .map((name) => fields.find((field) => field.name === name))

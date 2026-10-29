@@ -219,6 +219,38 @@ describe("buildVisualization", () => {
     expect(result.advices.some((advice) => advice.mark === "grouped-bar")).toBe(true);
   });
 
+  test("names the distribution when a single measure is already a histogram", () => {
+    const result = buildVisualization({
+      text: "耗时\n4\n9\n9\n15\n3\n",
+      intentText: "看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("histogram");
+    expect(result.selected.reason).toContain("分布");
+  });
+
+  test("does not switch a one-row-per-category table to a distribution", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+      intentText: "看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("bar");
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "distribution-needs-repeats",
+        level: "info",
+        message: "每个类别只有一个值，看不了分布，仍用柱状图比较大小。",
+      }),
+    );
+  });
+
   test("bins a single measure into a histogram", () => {
     const result = buildVisualization({
       text: "时长\n1\n2\n2\n3\n8\n9\n10\n",
