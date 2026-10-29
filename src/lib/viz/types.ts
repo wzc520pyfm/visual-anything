@@ -13,7 +13,9 @@ export type Mark =
   | "scatter"
   | "pie"
   | "heatmap"
-  | "histogram";
+  | "histogram"
+  | "boxplot"
+  | "diverging-bar";
 
 export type FieldType = "quantitative" | "nominal" | "temporal";
 
@@ -127,6 +129,8 @@ export const MARK_LABEL: Record<Mark, string> = {
   pie: "饼图",
   heatmap: "热力图",
   histogram: "直方图",
+  boxplot: "箱线图",
+  "diverging-bar": "发散条形图",
 };
 
 export const ANTV_PALETTE = [

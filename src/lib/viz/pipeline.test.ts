@@ -263,6 +263,35 @@ describe("buildVisualization", () => {
     expect(result.selected.reason).toContain("分布");
   });
 
+  test("keeps a bar as the default when each group has repeated measures", () => {
+    const text = "门店,耗时\n甲,4\n甲,9\n甲,6\n乙,3\n乙,8\n乙,5\n";
+    const result = buildVisualization({ text });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("bar");
+    expect(result.advices.map((advice) => advice.mark)).toContain("boxplot");
+  });
+
+  test("uses a boxplot when the user asks for a distribution of repeated measures", () => {
+    const result = buildVisualization({
+      text: "门店,耗时\n甲,4\n甲,9\n甲,6\n乙,3\n乙,8\n乙,5\n",
+      intentText: "看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("boxplot");
+    expect(result.selected.encodings).toEqual({ x: "门店", y: "耗时" });
+    expect(result.spec.type).toBe("boxplot");
+    const scale = result.spec.scale as { y: { domainMin?: number; nice?: boolean } };
+    expect(scale.y.nice).toBe(true);
+    expect(scale.y.domainMin).toBeUndefined();
+    expect(result.issues.some((issue) => issue.code === "distribution-needs-repeats")).toBe(false);
+  });
+
   test("does not switch a one-row-per-category table to a distribution", () => {
     const result = buildVisualization({
       text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",

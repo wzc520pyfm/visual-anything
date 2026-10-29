@@ -100,6 +100,15 @@ export function buildSpec(advice: ChartAdvice, rows: Row[], title: string): G2Sp
         axis: { x: { title: x! }, y: { title: "频数" } },
         style: { inset: 1 },
       };
+    case "boxplot":
+      return {
+        ...base,
+        type: "boxplot",
+        data: rows,
+        encode: { x: x!, y: y! },
+        scale: { y: { nice: true } },
+        axis: { x: { title: x! }, y: { title: axisTitle(y!) } },
+      };
     default:
       return barSpec(false, rows, base, x ?? "", y ?? "");
   }
@@ -110,6 +119,9 @@ export function summarize(advice: ChartAdvice, rowCount: number): string {
   const { x, y, color } = advice.encodings;
   if (advice.mark === "histogram") {
     return `${label}，对${x}做分箱计数，共 ${rowCount} 行。`;
+  }
+  if (advice.mark === "boxplot") {
+    return `${label}，横轴为${x}，纵轴为${y}的分布，共 ${rowCount} 行。`;
   }
   if (advice.mark === "pie") {
     return `${label}，用${color}看${y}的构成，共 ${rowCount} 行。`;

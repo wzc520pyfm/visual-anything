@@ -4,6 +4,7 @@ import { MARK_LABEL, type ChartAdvice, type Encodings, type FieldProfile, type I
 export function advise(
   fields: FieldProfile[],
   intents: Set<Intent>,
+  options?: { repeatedMeasures?: boolean },
 ): { advices: ChartAdvice[]; issues: Issue[] } {
   const issues: Issue[] = [];
   const quantitative = fields.filter((field) => field.type === "quantitative" && field.max !== undefined);
@@ -123,6 +124,16 @@ export function advise(
           intents.has("part-to-whole") ? 12 : 3,
           "类别少且数值都非负，饼图只回答构成问题。",
           { y: measure.name, color: category.name },
+        ),
+      );
+    }
+    if (options?.repeatedMeasures && measure) {
+      advices.push(
+        make(
+          "boxplot",
+          intents.has("distribution") ? 12 : 7,
+          `「${nominal[0].name}」各组有多条${measure.name}，箱线图用来看分布而不是合计。`,
+          { x: nominal[0].name, y: measure.name },
         ),
       );
     }

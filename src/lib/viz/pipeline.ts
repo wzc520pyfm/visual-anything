@@ -63,7 +63,13 @@ export function buildVisualization(input: VizInput): VizResult {
     };
   }
 
-  const adviceResult = advise(fields, detectIntents(input.intentText));
+  const onlyCategory = fields.filter((field) => field.type === "nominal");
+  const repeatedMeasures =
+    onlyCategory.length === 1 &&
+    fields.every((field) => field.type !== "temporal") &&
+    onlyCategory[0].unique >= 2 &&
+    rows.length >= onlyCategory[0].unique * 2;
+  const adviceResult = advise(fields, detectIntents(input.intentText), { repeatedMeasures });
   issues.push(...adviceResult.issues);
   if (adviceResult.advices.length === 0) {
     return fail("这组字段还不能画出统计图。", "no-chart", rows, fields);
@@ -87,6 +93,7 @@ export function buildVisualization(input: VizInput): VizResult {
   if (
     askedDistribution &&
     selected.mark !== "histogram" &&
+    selected.mark !== "boxplot" &&
     category &&
     fields.filter((field) => field.type === "nominal").length === 1 &&
     fields.filter((field) => field.type === "temporal").length === 0 &&
