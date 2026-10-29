@@ -13,7 +13,7 @@ v1 draws statistical charts with AntV G2. Call the pipeline. Do not hand-write c
 - The user wants a chart, a comparison, a trend, a share, a distribution, or a downloadable page.
 - A previous chart looks misleading: truncated axis, mixed units, pie of negatives, or a cause stated from a correlation.
 
-Do not use this for flowcharts, org charts, knowledge graphs, or infographics. Those AntV surfaces (X6, G6, Infographic) are not in v1. A table with no numeric column has no chart yet.
+Do not use this for flowcharts, org charts, knowledge graphs, or infographics. Those AntV surfaces (X6, G6, Infographic) are not in v1. One repeated category with no measure becomes a count chart; a list of unique labels still does not.
 
 ## Pipeline
 

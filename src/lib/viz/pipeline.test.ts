@@ -388,6 +388,25 @@ describe("buildVisualization", () => {
     );
   });
 
+  test("names the selected mark in distribution warnings when ranking wins", () => {
+    const result = buildVisualization({
+      text: "品类,销售额\n茶饮,80\n咖啡,120\n烘焙,40\n",
+      intentText: "看排名，看分布",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.selected.mark).toBe("horizontal-bar");
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "distribution-needs-repeats",
+        level: "info",
+        message: "每个类别只有一个值，看不了分布，仍用条形图。",
+      }),
+    );
+  });
+
   test("bins a single measure into a histogram", () => {
     const result = buildVisualization({
       text: "时长\n1\n2\n2\n3\n8\n9\n10\n",

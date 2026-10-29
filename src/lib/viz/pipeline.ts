@@ -121,7 +121,10 @@ export function buildVisualization(input: VizInput): VizResult {
     issues.push({
       level: "info",
       code: "distribution-needs-repeats",
-      message: "每个类别只有一个值，看不了分布，仍用柱状图比较大小。",
+      message:
+        selected.mark === "bar"
+          ? "每个类别只有一个值，看不了分布，仍用柱状图比较大小。"
+          : `每个类别只有一个值，看不了分布，仍用${MARK_LABEL[selected.mark]}。`,
     });
   }
 
