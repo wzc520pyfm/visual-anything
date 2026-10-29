@@ -580,3 +580,17 @@ test("cli writes a standalone html file", async () => {
   expect(html).toContain(`@antv/g2@${G2_VERSION}`);
   expect(html).toContain("月销售");
 });
+
+test("the skill tells agents where not to send a statistical table", () => {
+  const skill = readFileSync(new URL("../../../skills/universal-visualization/SKILL.md", import.meta.url), "utf8");
+
+  expect(skill).toContain("horizontal bar sorted from high to low");
+  expect(skill).toContain("boxplot");
+  expect(skill).toContain("diverging bar");
+  expect(skill).toContain("count-chart");
+  expect(skill).toContain("Do not use this skill to hand-write Vega-Lite");
+  expect(skill).toContain("Do not use this skill for matplotlib, seaborn, or Plotly");
+  expect(skill).toContain("Do not publish through Datawrapper or Flourish");
+  expect(skill).toContain("Do not draw a map");
+  expect(skill).toContain("Do not add a dual axis");
+});
