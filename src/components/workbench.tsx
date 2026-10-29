@@ -98,7 +98,7 @@ export function Workbench() {
       <header className="border-b border-border/80">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <p className="text-xs font-medium tracking-[0.18em] text-primary">ANTV G2 · V1</p>
+            <p className="text-xs font-medium tracking-[0.18em] text-primary">ANTV G2</p>
             <h1 className="mt-1 font-heading text-4xl tracking-tight">Visual Anything</h1>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               把表格整理成可交互图表。先看字段和时间，再决定柱状、折线、散点或热力，并标出不该下的结论。
@@ -204,7 +204,7 @@ export function Workbench() {
                 <div className="flex h-[340px] flex-col items-start justify-center gap-2 rounded-xl bg-muted/60 px-6 sm:h-[480px]">
                   <p className="font-heading text-2xl">换一份表格</p>
                   <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                    需要至少一列数值。类别用来比较，时间用来看变化。关系图和信息图还没接上，这一版只画统计图。
+                    需要至少一列数值。类别用来比较，时间用来看变化。
                   </p>
                 </div>
               )}
@@ -225,7 +225,7 @@ export function Workbench() {
           <Card>
             <CardHeader>
               <CardTitle>判断</CardTitle>
-              <CardDescription>推荐来自字段类型，不来自模型临场发挥。</CardDescription>
+              <CardDescription>按字段类型列出可以换成的图。</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {result.ok ? (
@@ -293,10 +293,6 @@ export function Workbench() {
                 <h2 className="mb-2 text-sm font-medium">检查</h2>
                 <IssueList issues={result.issues} />
               </div>
-
-              <p className="text-xs leading-5 text-muted-foreground">
-                这一版的引擎是 AntV G2。ECharts 和其他引擎留到 v2，不在这里切换。
-              </p>
             </CardContent>
           </Card>
         </section>

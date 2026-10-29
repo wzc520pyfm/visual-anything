@@ -34,5 +34,3 @@ npx visual-anything --input data.csv --out chart.html --title 区域月销售额
 ## 不做什么
 
 不分组、不筛选、不把明细求和。订单流水不会自动变成「各区域销售额」；要先汇总，并在标题里写明口径。唯一的计数是：没有数值列、且只有一个类别出现重复时，柱高是出现次数。
-
-不画地图、关系图、流程图和信息图。不写 Vega-Lite、ECharts、matplotlib、seaborn 或 Plotly。不加第二根数值轴。
